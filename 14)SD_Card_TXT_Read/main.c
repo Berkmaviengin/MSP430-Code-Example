@@ -1,80 +1,73 @@
-/********************************************************
- * Yazar: Erhan YILMAZ									*
- * Ýsim:  Uygulama 10.1									*
- * Tarih: 04-06-2014									*
- * Açýklama: SD kart kullanýmý							*
- * **************************************************** */
-
-#include <msp430.h>			// MSP430 baþlýk dosyasý
-// SD kart kullanýmý ile ilgili kütüphane dosyalarý
+#include <msp430.h>			// MSP430 baÅŸlÄ±k dosyasÄ±
+// SD kart kullanÄ±mÄ± ile ilgili kÃ¼tÃ¼phane dosyalarÄ±
 #include <stdint.h>
 #include "pff2a/src/diskio.h"
 #include "pff2a/src/pff.h"
 #include "drivers/spi.h"
 /////////////////////////////////////////////////////
-// Kullanýlan fonksiyon prototipleri
+// KullanÄ±lan fonksiyon prototipleri
 void Yanlis(void);
 void Dogru (void);
 void Bekle(unsigned int);
-// Dosya sisteminde kullanýlan deðiþkenler
+// Dosya sisteminde kullanÄ±lan deÄŸiÅŸkenler
 	FATFS fatfs;	  // File system object
 	WORD  br,bw;
 	BYTE buff[64];
 ///////////////////////////////////////////
-	unsigned char bSayac;	// Sayaç deðiþkeni
+	unsigned char bSayac;	// SayaÃ§ deÄŸiÅŸkeni
 
 void main (void)
 {
 	WDTCTL 	=  WDTPW + WDTHOLD;		// Watchdog timeri durdur
     WDTCTL  = WDTPW | WDTHOLD;		// Watchdog timeri durdur.
-    BCSCTL1 = CALBC1_16MHZ;			// Dahili osilatörü 16MHz'e ayarla.
-    DCOCTL = CALDCO_16MHZ;			// Dahili osilatörü 16MHz'e ayarla.
-	P1DIR 	&= ~BIT3;				// Port1.0 giriþ
-	P1SEL	&= ~BIT3;				// Port1.0 I/O olarak kullanýlacak
-	P1SEL2	&= ~BIT3;				// Port1.0 I/O olarak kullanýlacak
+    BCSCTL1 = CALBC1_16MHZ;			// Dahili osilatÃ¶rÃ¼ 16MHz'e ayarla.
+    DCOCTL = CALDCO_16MHZ;			// Dahili osilatÃ¶rÃ¼ 16MHz'e ayarla.
+	P1DIR 	&= ~BIT3;				// Port1.0 giriÅŸ
+	P1SEL	&= ~BIT3;				// Port1.0 I/O olarak kullanÄ±lacak
+	P1SEL2	&= ~BIT3;				// Port1.0 I/O olarak kullanÄ±lacak
 	P1REN	|= BIT3;				// Port1.0 Pull-up/down direnci aktif
-	P1OUT	|= BIT3;				// Port1.0 Pull-up özelliði aktif
-	P2DIR	|= BIT1 + BIT2;			// Port2.1-2 çýkýþ
-	P2SEL	&= ~(BIT1 + BIT2);		// Port2.1-2 I/O olarak kullanýlacak
-	P2SEL2	&= ~(BIT1 + BIT2);		// Port2.1-2 I/O olarak kullanýlacak
-	P2OUT	&= ~(BIT1 + BIT2);		// Port2.1-2 çýkýþlarýný sýfýrla
-	spi_initialize();				// USCI_B0 birimini SPI için hazýrla
+	P1OUT	|= BIT3;				// Port1.0 Pull-up Ã¶zelliÄŸi aktif
+	P2DIR	|= BIT1 + BIT2;			// Port2.1-2 Ã§Ä±kÄ±ÅŸ
+	P2SEL	&= ~(BIT1 + BIT2);		// Port2.1-2 I/O olarak kullanÄ±lacak
+	P2SEL2	&= ~(BIT1 + BIT2);		// Port2.1-2 I/O olarak kullanÄ±lacak
+	P2OUT	&= ~(BIT1 + BIT2);		// Port2.1-2 Ã§Ä±kÄ±ÅŸlarÄ±nÄ± sÄ±fÄ±rla
+	spi_initialize();				// USCI_B0 birimini SPI iÃ§in hazÄ±rla
 
 	while(1)
-	{								// Sonsuz döngü
-	    while(P1IN & BIT3);						// Butona(P1.0) basýlmasýný bekle
-	    _delay_cycles(16000);					// Buton arkýný önlemek için bir süre bekle
-	    while(!(P1IN & BIT3));					// Butonun(P1.0) býrakýlmasýný bekle
+	{								// Sonsuz dÃ¶ngÃ¼
+	    while(P1IN & BIT3);						// Butona(P1.0) basÄ±lmasÄ±nÄ± bekle
+	    _delay_cycles(16000);					// Buton arkÄ±nÄ± Ã¶nlemek iÃ§in bir sÃ¼re bekle
+	    while(!(P1IN & BIT3));					// Butonun(P1.0) bÄ±rakÄ±lmasÄ±nÄ± bekle
 	    if(pf_mount(&fatfs)==RES_OK)
-	    {			// Kartý aç
+	    {			// KartÄ± aÃ§
 	        if(pf_open("deneme.txt")==RES_OK)
-	        {		// deneme.txt doyasýný aç
+	        {		// deneme.txt doyasÄ±nÄ± aÃ§
 	            if(pf_read(buff,64, &br)==RES_OK)
 	            {		// Dosyadan 64 karakter veri oku
 	                for (bSayac=0; bSayac<=63; bSayac++)	// Okunan karakterleri kontrol et
 	                {
 
-	                    if( buff[bSayac] >= 'a' && buff[bSayac] <= 'z')	// Karakter küçük harf mi?
-	                        buff[bSayac] -= 0x20;					// Evet ise büyük harf yap.
+	                    if( buff[bSayac] >= 'a' && buff[bSayac] <= 'z')	// Karakter kÃ¼Ã§Ã¼k harf mi?
+	                        buff[bSayac] -= 0x20;					// Evet ise bÃ¼yÃ¼k harf yap.
 	                }
 	                if(pf_write(buff, 64, &bw)==RES_OK)
 	                {	// Okunan karakterleri geri yaz
 	                    if(pf_write(0, 0, &bw)==RES_OK)
-	                    {		// Dosyayý kapat
-	                        Dogru();								// Doðru uyarýsý ver
-	                    } else Yanlis();			// Dosya kapanmadýysa yanlýþ uyarýsý ver
+	                    {		// DosyayÄ± kapat
+	                        Dogru();								// DoÄŸru uyarÄ±sÄ± ver
+	                    } else Yanlis();			// Dosya kapanmadÄ±ysa yanlÄ±ÅŸ uyarÄ±sÄ± ver
 	                }
-	                else Yanlis();			// Karakterler yazýlmadýysa yanlýþ uyarýsý ver
+	                else Yanlis();			// Karakterler yazÄ±lmadÄ±ysa yanlÄ±ÅŸ uyarÄ±sÄ± ver
 	            }
-	            else Yanlis();			// Karakterler okunmadýysa yanlýþ uyarýsý ver
+	            else Yanlis();			// Karakterler okunmadÄ±ysa yanlÄ±ÅŸ uyarÄ±sÄ± ver
 	        }
-	        else Yanlis();			// Dosya açýlmadýysa yanlýþ uyarýsý ver
+	        else Yanlis();			// Dosya aÃ§Ä±lmadÄ±ysa yanlÄ±ÅŸ uyarÄ±sÄ± ver
 	    }
-	    else Yanlis();			// Kart açýlmadýysa yada yoksa yanlýþ uyarýsý ver
-	}							// Sonsuz döngü bitimi
+	    else Yanlis();			// Kart aÃ§Ä±lmadÄ±ysa yada yoksa yanlÄ±ÅŸ uyarÄ±sÄ± ver
+	}							// Sonsuz dÃ¶ngÃ¼ bitimi
 }								// Ana program sonu
 
-// Port2.1 pinine baðlý LED ile uyarý veren fonksiyon
+// Port2.1 pinine baÄŸlÄ± LED ile uyarÄ± veren fonksiyon
 void Dogru(void){
 	P2OUT |= BIT1;
 	Bekle(1000);
@@ -86,7 +79,7 @@ void Dogru(void){
 	Bekle(500);
 }
 
-// Port2.2 pinine baðlý LED ile uyarý veren fonksiyon
+// Port2.2 pinine baÄŸlÄ± LED ile uyarÄ± veren fonksiyon
 void Yanlis(void){
 	P2OUT |= BIT2;
 	Bekle(500);
@@ -98,7 +91,7 @@ void Yanlis(void){
 	Bekle(500);
 }
 
-// Genel amaçlý bekleme fonksiyonu
+// Genel amaÃ§lÄ± bekleme fonksiyonu
 void Bekle (unsigned int Bekle){
 	unsigned int i;
 	for(i=0;i<Bekle;i++)
